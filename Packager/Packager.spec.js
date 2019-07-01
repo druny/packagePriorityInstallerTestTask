@@ -3,12 +3,12 @@ const assert = require('assert');
 const Packager = require('./Packager');
 const { PackagesRepository } = require('../repository');
 const {
+  HAS_NOT_PARSED_DATA,
   WRONG_INPUT_DATA_ERROR_MESSAGE,
   DEPENDENCIES_CYCLE_ERROR_MESSAGE,
 }  = require('./constants');
 
-
-const SUCCED_RESULT_COLOR = '\x1b[36m%s\x1b[0m';
+const SUCCEED_RESULT_COLOR = '\x1b[36m%s\x1b[0m';
 
 const PackagerSpec = {
   wrongInput() {
@@ -22,7 +22,22 @@ const PackagerSpec = {
     } catch ({ message }) {
       assert.deepEqual(message, WRONG_INPUT_DATA_ERROR_MESSAGE);
 
-      console.log(SUCCED_RESULT_COLOR, '[wrongInput]', 'DONE')
+      console.log(SUCCEED_RESULT_COLOR, '[wrongInput]', 'DONE')
+    }
+  },
+
+  hasNotParsedData() {
+    const mockedWrongData = '';
+    const PackagerBuilder = new Packager(mockedWrongData);
+
+    try {
+      PackagerBuilder.buildFlow();
+
+      throw new Error('[hasNotParsedData] data has not parsed');
+    } catch ({ message }) {
+      assert.deepEqual(message, HAS_NOT_PARSED_DATA);
+
+      console.log(SUCCEED_RESULT_COLOR, '[hasNotParsedData]', 'DONE')
     }
   },
 
@@ -34,7 +49,7 @@ const PackagerSpec = {
 
     assert.deepEqual(PackagerBuilder.exec(), mockedResult);
 
-    console.log(SUCCED_RESULT_COLOR, '[basicCall]', 'DONE');
+    console.log(SUCCEED_RESULT_COLOR, '[basicCall]', 'DONE');
   },
 
   cyclicDependenciesCall() {
@@ -48,11 +63,12 @@ const PackagerSpec = {
     } catch ({ message }) {
       assert.deepEqual(message, DEPENDENCIES_CYCLE_ERROR_MESSAGE);
 
-      console.log(SUCCED_RESULT_COLOR, '[cyclicDependenciesCall]', 'DONE')
+      console.log(SUCCEED_RESULT_COLOR, '[cyclicDependenciesCall]', 'DONE')
     }
   },
 
   exec() {
+    this.hasNotParsedData();
     this.basicCall();
     this.wrongInput();
     this.cyclicDependenciesCall();
