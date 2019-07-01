@@ -1,4 +1,5 @@
 # Package installer
+Didn't use any library. So You don't need to install dependencies
 
 ## Requirements
     - NodeJS > 10v
