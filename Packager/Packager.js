@@ -1,4 +1,8 @@
-const { DEPENDENCIES_CYCLE_ERROR_MESSAGE, WRONG_INPUT_DATA_ERROR_MESSAGE } = require('./constants');
+const {
+  HAS_NOT_PARSED_DATA,
+  WRONG_INPUT_DATA_ERROR_MESSAGE,
+  DEPENDENCIES_CYCLE_ERROR_MESSAGE,
+} = require('./constants');
 
 class Packager {
   constructor(packages) {
@@ -15,7 +19,9 @@ class Packager {
       .filter((element) => element);
   }
 
-  static setDependencies(packages, packagesDependencies) {
+  setDependencies() {
+    const { packages, packagesDependencies } = this;
+
     const isPackagesTypeObject = typeof packages === 'object';
 
     if (!isPackagesTypeObject) throw new TypeError(WRONG_INPUT_DATA_ERROR_MESSAGE);
@@ -35,7 +41,7 @@ class Packager {
       });
   }
 
-  managePackageDependedncies(packageDependencies, dependent) {
+  managePackageDependencies(packageDependencies, dependent) {
     const subjects = packageDependencies.get(dependent);
 
     subjects.forEach((subject) => {
@@ -43,7 +49,7 @@ class Packager {
 
       if (!this.packagesInstallFlow.has(dependent) && subject) {
         this.checkedPackages.add(subject);
-        this.managePackageDependedncies(packageDependencies, subject);
+        this.managePackageDependencies(packageDependencies, subject);
       }
 
       if (!subject || this.packagesInstallFlow.has(subject)) {
@@ -53,9 +59,13 @@ class Packager {
     });
   }
 
-  buildFlow(packageDependencies) {
-    for (let [dependent] of packageDependencies.entries()) {
-      this.managePackageDependedncies(packageDependencies, dependent);
+  buildFlow() {
+    const { packagesDependencies } = this;
+
+    if (!packagesDependencies.size) throw new Error(HAS_NOT_PARSED_DATA);
+
+    for (let [dependent] of packagesDependencies.entries()) {
+      this.managePackageDependencies(packagesDependencies, dependent);
     }
 
     return this.packagesInstallFlow;
@@ -66,11 +76,8 @@ class Packager {
   }
 
   exec() {
-    const { packages, packagesDependencies } = this;
-
-    Packager.setDependencies(packages, packagesDependencies);
-    this.buildFlow(packagesDependencies);
-
+    this.setDependencies();
+    this.buildFlow();
 
     return this.parsePackagesInstallFlow();
   }
