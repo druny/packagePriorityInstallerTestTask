@@ -1,0 +1,12 @@
+{
+  "name": "packageInstaller",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./index.js",
+    "dev": "nodemon ./index.js",
+    "test": "node ./index.spec.js",
+    "test:watch": "nodemon ./index.spec.js"
+  }
+}
